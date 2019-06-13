@@ -1,59 +1,53 @@
-// Require the Letter constructor that was exported from letter.js
 var Letter = require("./letter.js");
 
-// Constructor for words
-function Word(currentWord) {
-    this.newLetterArray = [];
-         for (var i = 0; i < currentWord.length; i++) {
-        // Create a letter object if it is not a space 
-        if (currentWord[i] !== " ") {
-            var letterObject = new Letter(currentWord[i]);
-            this.newLetterArray.push(letterObject);
-        }
-        else {
-            this.newLetterArray.push(" ");
-        }
-    }
-}
-// Method that displays this word
-this.displayWord = function () {
-    // Empty array to hold the letter and underscores
-    var word = [];
-    // Loop through the word and call on display function for each letter
-    for (var i = 0; i < this.newLetterArray.length; i++) {
-        // Only displays letter or underscore if it is not a space
-        if (this.newLetterArray[i] !== " ") {
-            var letterString = this.newLetterArray[i].display();
-            word.push(letterString);
-        }
-        else {
-            word.push(" ");
-        }
-    }
-    // Displays word array as a string
-    console.log(word.join(" "));
-}
-// Method that checks if user input matches any letters of the word
-this.checkUserInput = function (input) {
-    // Flag to track if any letters were guessed
-    var correctGuess = false;
-    // Loop through word and call on check letter function for each letter
-    for (var i = 0; i < this.newLetterArray.length; i++) {
-        if (this.newLetterArray[i] !== " ") {
-            if (this.newLetterArray[i].checkLetter(input)) {
-                // if any were guessed mark it as a correct guess
-                correctGuess = true;
-            }
-        }
-    }
-    if (correctGuess) {
-        return true;
-    }
-    else {
-        return false;
-    }
+// The Word constructor is responsible for creating an array of Letter objects and determining if the user guessed every Letter correctly
+function Word(word) {
+    // word.split - splits word into array of letters
+    //     .map - instantiate a new `Letter` for each character and return an array
+    //            referred to with the instance variable, `letters`
+    this.letters = word.split("").map(function (char) {
+        return new Letter(char);
+    });
 }
 
+// prototypes are optional, but will take up less memory than if we defined
+//   each method in the constructor as an instance method
 
-// Export the Word constructor to index.js
+// setting the method on the prototype means all instances of Word share this code
+//    but when it is called, `this` refers to that particular instance
+Word.prototype.getSolution = function () {
+    return this.letters.map(function (letter) { // iterate over each letter
+        return letter.getSolution(); // return the solution for each to form an array of solved letters
+    }).join(""); // create a string from the array of solved letters
+};
+
+// setting `toString()` as a method lets us concatenate it like we would a string!
+Word.prototype.toString = function () {
+    return this.letters.join(" "); // see Letter.prototype.toString in Letter.js
+};
+
+Word.prototype.guessLetter = function (char) {
+    // Checks to see if any of the letters in the array match the user's guess and updates `foundLetter`
+    var foundLetter = false;
+    this.letters.forEach(function (letter) {
+        if (letter.guess(char)) {
+            foundLetter = true;
+        }
+    });
+
+    // Print the word guessed so far--because we set the method for toString,
+    //  JavaScript will automatically concatenate this even if we don't call toString
+    console.log("\n" + this + "\n");
+    // return whether we found a letter
+    return foundLetter;
+};
+
+// Returns true if all letters in the word have been guessed
+Word.prototype.guessedCorrectly = function () {
+    // The `every` method returns true if the callback function returns true for every element in the array
+    return this.letters.every(function (letter) {
+        return letter.visible;
+    });
+};
+
 module.exports = Word;

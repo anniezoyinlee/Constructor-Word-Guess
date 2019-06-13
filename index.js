@@ -86,8 +86,8 @@ function Game() {
         ])
         .then(function(val) {
           // If the user's guess is in the current word, log that they chose correctly
-          var didGuessCorrectly = self.currentWord.guessLetter(val.choice);
-          if (didGuessCorrectly) {
+          var correctGuessed = self.currentWord.guessLetter(val.choice);
+          if (correctGuessed) {
             console.log(chalk.green("\nCORRECT!\n"));
   
             // Otherwise decrement `guessesLeft`, and let the user know how many guesses they have left
